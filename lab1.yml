@@ -1,0 +1,45 @@
+version: '3'
+
+networks:
+  cluster:
+    external:
+      name: cluster
+
+services:
+  mongo-1-1:
+    container_name: "mongo-1-1"
+    networks:
+      cluster:
+        ipv4_address: 10.100.100.1
+        aliases:
+          - mongo_1_1
+    image: mongo
+
+  maria1:
+    container_name: "maria1"
+    image: mariadb
+    restart: always
+    networks:
+      cluster:
+        ipv4_address: 10.100.100.2
+        aliases:
+          - mongo_1_1
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: test
+      MYSQL_DATABASE: database
+    ports:
+      - "8881:3306"
+
+  virt:
+    container_name: "py3"
+    networks:
+      cluster:
+        ipv4_address: 10.100.100.3
+        aliases:
+          - mongo_1_1
+    image: debian_vir
+    volumes:
+      - /home/q/PY3:/PY3
+    command: tail -f /etc/password > /dev/null
